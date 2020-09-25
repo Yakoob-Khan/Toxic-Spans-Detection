@@ -1,10 +1,7 @@
 import time
-
 import string
-import torch
-from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from transformers import BertTokenizer, BertConfig
 
+from transformers import BertTokenizer
 from load_dataset import load_dataset
 
 def get_toxic_span(span):
@@ -48,7 +45,7 @@ def tokenize_and_preserve_labels(tokenizer, text, span):
 
 def tokenize_data(texts, spans):
     print('> Tokenizing data..')
-    
+
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
     tokenized_texts_and_labels = [tokenize_and_preserve_labels(tokenizer, text, span) for text, span in zip(texts, spans)]
     
