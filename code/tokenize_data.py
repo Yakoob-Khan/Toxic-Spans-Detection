@@ -47,11 +47,15 @@ def tokenize_and_preserve_labels(tokenizer, text, span):
         
 
 def tokenize_data(texts, spans):
+    print('> Tokenizing data..')
+    
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
     tokenized_texts_and_labels = [tokenize_and_preserve_labels(tokenizer, text, span) for text, span in zip(texts, spans)]
     
     tokenized_texts = [token_label_pair[0] for token_label_pair in tokenized_texts_and_labels]
     labels = [token_label_pair[1] for token_label_pair in tokenized_texts_and_labels]
+
+    print('-- Done!\n')
 
     return tokenized_texts, labels
     
