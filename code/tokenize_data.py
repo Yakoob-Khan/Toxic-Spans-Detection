@@ -1,11 +1,13 @@
+import time
+
+import string
 import torch
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import BertTokenizer, BertConfig
 
 from load_dataset import load_dataset
 
-
-def get_toxic_spans(span):
+def get_toxic_span(span):
     toxic_spans = []
     cur = [None, None]
     for offset in span:
@@ -23,55 +25,40 @@ def get_toxic_spans(span):
     return toxic_spans
 
 
-def get_labels(text, toxic_spans):
-    toxic_spans = [tuple(span) for span in toxic_spans]
-    toxic_spans = set(toxic_spans)
-    print(toxic_spans)
-    words = text.split()
-    start = 0
-    labels = [0] * len(words)
-    for i, word in enumerate(words):
-        end = start + len(word)
-        print(text[start:end], start, end)
-        if (start, end-1) in toxic_spans:
-            labels[i] = 1
-        
-        start += len(word) + 1
-
-    print(labels)
-    return labels
-
-
+def remove_punctuation(word):
+    return word.translate(str.maketrans('', '', string.punctuation))
     
 
+def tokenize_and_preserve_labels(tokenizer, text, span):
+    toxic_spans = get_toxic_span(span)
+    toxic_words = { remove_punctuation(word) for start, end in toxic_spans for word in text[start:end+1].split()}
+    
+    tokenized_sentence, labels = [], []
 
-def tokenize_and_preserve_labels(text, span):
-    pass
+    for word in text.split():
+        tokenized_word = tokenizer.tokenize(word)
+        n_subwords = len(tokenized_word)
+        label = 1 if remove_punctuation(word) in toxic_words else 0
 
+        tokenized_sentence.extend(tokenized_word)
+        labels.extend([label] * n_subwords)
+    
+    return tokenized_sentence, labels
+        
 
 def tokenize_data(texts, spans):
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-    for i, span in enumerate(spans):
-        if i < 1:
-            text = texts[i]
-            print(text)
-            toxic_spans = get_toxic_spans(span)
-            labels = get_labels(text, toxic_spans)
-            
-        else:
-            break
+    tokenized_texts_and_labels = [tokenize_and_preserve_labels(tokenizer, text, span) for text, span in zip(texts, spans)]
+    
+    tokenized_texts = [token_label_pair[0] for token_label_pair in tokenized_texts_and_labels]
+    labels = [token_label_pair[1] for token_label_pair in tokenized_texts_and_labels]
 
-        
-    # for i, text in enumerate(texts):
-    #     if i < 3:
-    #         print(text)
-    #         print(tokenizer.tokenize(text), '\n')
-    #     else:
-    #         break
-        
-        
-
+    return tokenized_texts, labels
+    
 
 if __name__ == '__main__':
+    start = time.time()
     texts, spans = load_dataset('../data/tsd_trial.csv')
     tokenize_data(texts, spans)
+    end = time.time()
+    print(f"Time: {end-start}s")
