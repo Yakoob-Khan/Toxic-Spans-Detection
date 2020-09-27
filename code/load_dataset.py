@@ -14,4 +14,4 @@ def load_dataset(dataset_path):
     return text, spans
 
 if __name__ == '__main__':
-    load_dataset('../data/tsd_trial.csv')
+    load_dataset('../data/tsd_train.csv')

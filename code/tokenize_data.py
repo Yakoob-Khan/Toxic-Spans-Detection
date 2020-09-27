@@ -4,44 +4,30 @@ import string
 from transformers import BertTokenizer
 from load_dataset import load_dataset
 
-def get_toxic_span(span):
-    toxic_spans = []
-    cur = [None, None]
-    for offset in span:
-        if not cur[0]:
-            cur = [offset, offset]
-        elif offset == cur[1] + 1:
-            cur[1] = offset
-        else:
-            toxic_spans.append(cur)
-            cur = [offset, offset]
-
-    if cur[0] and cur[1]:
-        toxic_spans.append(cur)
-    
-    return toxic_spans
-
-
-def remove_punctuation(word):
-    return word.translate(str.maketrans('', '', string.punctuation))
-    
 
 def tokenize_and_preserve_labels(tokenizer, text, span):
-    toxic_spans = get_toxic_span(span)
-    toxic_words = { remove_punctuation(word) for start, end in toxic_spans for word in text[start:end+1].split()}
-    
     tokenized_sentence, labels = [], []
 
-    for word in text.split():
-        tokenized_word = tokenizer.tokenize(word)
-        n_subwords = len(tokenized_word)
-        label = 1 if remove_punctuation(word) in toxic_words else 0
+    n = len(text)
+    chars = [0] * n
+    for s in span: chars[s] = 1
 
-        tokenized_sentence.extend(tokenized_word)
-        labels.extend([label] * n_subwords)
-    
+    p1, p2 = 0, 0
+    while p1 < n:
+        while p2 < n and chars[p2] == chars[p1]:
+            p2 += 1
+
+        label = chars[p1]
+        for word in text[p1:p2].split():
+            tokenized_word = tokenizer.tokenize(word)
+            n_subwords = len(tokenized_word)
+            tokenized_sentence.extend(tokenized_word)
+            labels.extend([label] * n_subwords)
+
+        p1 = p2
+
     return tokenized_sentence, labels
-        
+
 
 def tokenize_data(texts, spans):
     print('> Tokenizing data..')
@@ -59,7 +45,7 @@ def tokenize_data(texts, spans):
 
 if __name__ == '__main__':
     start = time.time()
-    texts, spans = load_dataset('../data/tsd_trial.csv')
-    tokenize_data(texts, spans)
+    texts, spans = load_dataset('../data/tsd_train.csv')
+    tokenized_texts, labels = tokenize_data(texts, spans)
     end = time.time()
     print(f"Time: {end-start}s")
