@@ -9,7 +9,8 @@ def load_dataset(dataset_path):
     text = dataset["text"]
     spans = dataset["spans"]
 
-    print('-- Done!\n')
+
+    print(f"-- Done loading {dataset.shape[0]} examples! \n")
    
     return text, spans
 
