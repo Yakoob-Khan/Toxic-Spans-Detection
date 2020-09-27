@@ -14,7 +14,6 @@ tokenized_texts, labels = tokenize_data(texts, spans)
 
 train_dataset, val_dataset = train_val_split(tokenized_texts, labels, 0.2)
 
-
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
     num_train_epochs=3,              # total number of training epochs
@@ -35,9 +34,12 @@ trainer = Trainer(
     eval_dataset=val_dataset             # evaluation dataset
 )
 
-print('Beginning training..\n')
+print('Begin training..\n')
 trainer.train()
 
+result = trainer.evaluate()
+print(result)
+# trainer.save_model()
 
 end = time.time()
 print(f"Time: {end-start}s")
