@@ -27,6 +27,7 @@ def compute_metrics(pred):
   y_trues, y_preds = relevant_labels(gold_labels, predictions)
   
   total_precision = total_recall = total_f1 = total_accuracy = 0
+
   # loop through each prediction 
   for y_true, y_pred in zip(y_trues, y_preds):
     # get metrics for each prediction
@@ -66,8 +67,6 @@ def f1_system_score(toxic_char_pred, gold_char_offsets):
     denom = len(set(predictions))+len(set(gold))
     return float(nom)/float(denom)
   
-  f1_scores = []
-  for toxic_offsets, gold_offsets in zip(toxic_char_pred, gold_char_offsets):
-    f1_scores.append(f1(toxic_offsets, gold_offsets))
+  f1_scores = [f1(toxic_offsets, gold_offsets) for toxic_offsets, gold_offsets in zip(toxic_char_pred, gold_char_offsets)]
   
   return np.array(f1_scores).mean()

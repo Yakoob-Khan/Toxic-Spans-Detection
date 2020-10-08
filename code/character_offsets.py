@@ -23,12 +23,7 @@ def toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction):
   
   return toxic_offsets
 
-
 def character_offsets(tokenizer, input_ids, val_offset_mapping, predictions):
-  toxic_char_preds = []
-  for input_id, offset_mapping, prediction in zip(input_ids, val_offset_mapping, predictions):
-    toxic_offsets = toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction)
-    toxic_char_preds.append(toxic_offsets)
+  toxic_char_preds = [toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction) for input_id, offset_mapping, prediction in zip(input_ids, val_offset_mapping, predictions)]
   
   return toxic_char_preds
-
