@@ -9,10 +9,6 @@ def load_dataset(dataset_path):
     text = dataset["text"]
     spans = dataset["spans"]
 
-
     print(f"-- Done loading {dataset.shape[0]} examples! \n")
    
     return text, spans
-
-if __name__ == '__main__':
-    load_dataset('../data/tsd_train.csv')

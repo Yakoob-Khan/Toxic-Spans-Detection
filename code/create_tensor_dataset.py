@@ -1,6 +1,6 @@
 import torch
 
-class ToxicSpansDetection(torch.utils.data.Dataset):
+class ToxicSpansDataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels):
         self.encodings = encodings
         self.labels = labels
@@ -12,6 +12,3 @@ class ToxicSpansDetection(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.labels)
-
-
-
