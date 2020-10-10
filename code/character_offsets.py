@@ -1,7 +1,6 @@
 import numpy as np
 
-def toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction):
-  text = tokenizer.decode(np.array(input_id), skip_special_tokens=True)
+def toxic_character_offsets(offset_mapping, prediction):
   toxic_offsets = []
   prev = 0
 
@@ -23,7 +22,7 @@ def toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction):
   
   return toxic_offsets
 
-def character_offsets(tokenizer, input_ids, val_offset_mapping, predictions):
-  toxic_char_preds = [toxic_character_offsets(tokenizer, input_id, offset_mapping, prediction) for input_id, offset_mapping, prediction in zip(input_ids, val_offset_mapping, predictions)]
+def character_offsets(val_offset_mapping, predictions):
+  toxic_char_preds = [toxic_character_offsets(offset_mapping, prediction) for offset_mapping, prediction in zip(val_offset_mapping, predictions)]
   
   return toxic_char_preds

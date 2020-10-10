@@ -39,16 +39,12 @@ def tokenize_data(texts, spans):
     """
       - Split each posts into space delimeted words and get its corresponding labels
       - 1: toxic, 0: non-toxic
-    """
-    print('> Tokenizing data..')
-    
+    """    
     tokenized_texts_and_labels = [split_and_identify_labels(text, span) for text, span in zip(texts, spans)]
     
     # separate the tokenized texts and labels
     tokenized_texts = [token_label_pair[0] for token_label_pair in tokenized_texts_and_labels]
     labels = [token_label_pair[1] for token_label_pair in tokenized_texts_and_labels]
-
-    print('-- Done!\n')
 
     return tokenized_texts, labels
     
