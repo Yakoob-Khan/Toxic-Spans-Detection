@@ -18,7 +18,7 @@ from transformers import BertForTokenClassification, Trainer, TrainingArguments,
 start = time.time()
 
 # Load the dataset
-texts, spans = load_dataset('../data/tsd_trial.csv')
+texts, spans = load_dataset('../data/tsd_train.csv')
 
 # Split the dataset into training / validation sets using sklearn function
 training_texts, val_texts, training_spans, val_spans = train_test_split(texts, spans, test_size=0.2)
@@ -67,9 +67,9 @@ model = BertForTokenClassification.from_pretrained("bert-base-cased", num_labels
 # Training Argument Object with hyper-parameter configuration.
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
-    num_train_epochs=6,              # total number of training epochs
+    num_train_epochs=1.5,              # total number of training epochs
     per_device_train_batch_size=16,  # batch size per device during training
-    per_device_eval_batch_size=64,   # batch size for evaluation
+    per_device_eval_batch_size=16,   # batch size for evaluation
     warmup_steps=500,                # number of warmup steps for learning rate scheduler
     weight_decay=0.01,               # strength of weight decay
     logging_dir='./logs',            # directory for storing logs
