@@ -54,4 +54,5 @@ def plot_loss(filepath):
     # plt.show()
     print("> Saved figure as loss.png")
     plt.savefig('loss.png')
-    
+
+plot_loss('loss.txt')

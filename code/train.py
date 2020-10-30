@@ -12,7 +12,7 @@ from plot import plot
 from write_predictions import write_toxic_strings
 from collections import defaultdict
 
-from transformers import BertForTokenClassification, Trainer, TrainingArguments, BertTokenizerFast
+from transformers import BertForTokenClassification, Trainer, TrainingArguments, BertTokenizerFast 
 
 start = time.time()
 
@@ -22,6 +22,7 @@ model = BertForTokenClassification.from_pretrained("bert-base-cased", num_labels
 
 # Load the dataset
 texts, spans = load_dataset('../data/tsd_train.csv')
+# texts, spans = load_dataset('../data/tsd_trial.csv')
 
 # Split the dataset into training / validation sets
 training_texts, val_texts, training_spans, val_spans = training_validation_split(texts, spans, test_size=0.2)
@@ -46,7 +47,7 @@ metrics = defaultdict(list)
 # custom metric wrapper function
 def custom_metrics(pred):
   # comute the precision, recall and f1 of the system at evaluation step
-  ret = compute_metrics(pred, val_spans, val_offset_mapping)
+  ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings)
 
   # store the metrics for visualization later
   metrics['precision'].append(ret['precision'])
@@ -59,9 +60,9 @@ def custom_metrics(pred):
 # Training Argument Object with hyper-parameter configuration.
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
-    num_train_epochs=2,              # total number of training epochs
+    num_train_epochs=1.2,              # total number of training epochs
     per_device_train_batch_size=16,  # batch size per device during training
-    per_device_eval_batch_size=16,   # batch size for evaluation
+    per_device_eval_batch_size=32,   # batch size for evaluation
     warmup_steps=500,                # number of warmup steps for learning rate scheduler
     weight_decay=0.01,               # strength of weight decay
     logging_dir='./logs',            # directory for storing logs
@@ -82,19 +83,22 @@ trainer = Trainer(
     compute_metrics=custom_metrics
 )
 
-print('\n> Started training..\n')
+print('> Started training..\n')
 trainer.train()
 
-print("> ---- Making Predictions ---- \n")
+print("\n> ---- Making Predictions ---- \n")
 # use trained model to make predictions
 pred = trainer.predict(val_dataset)
+
 # Print final metrics
-ret = compute_metrics(pred, val_spans, val_offset_mapping)
+ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings)
+
 print(f'System performance: {ret}')
+
 # retrieve the predictions
 predictions = pred.predictions.argmax(-1)
 # get the predicted character offsets
-toxic_char_preds = character_offsets(val_offset_mapping, predictions)
+toxic_char_preds = character_offsets(val_text_encodings, val_offset_mapping, predictions)
 # write the predicted and ground truth toxic strings to examine model outputs
 write_toxic_strings('predictions.txt', val_texts, val_spans, toxic_char_preds)
 
