@@ -25,12 +25,12 @@ def system_precision_recall_f1(toxic_char_preds, gold_char_offsets):
   return np.array(precision_recall_f1_scores).mean(axis=0)
 
 
-def compute_metrics(pred, gold_char_offsets, val_offset_mapping, val_text_encodings):
+def compute_metrics(pred, gold_char_offsets, val_offset_mapping, val_text_encodings, val_sentences_info):
   # get the sub-token predictions made by the model
   predictions = pred.predictions.argmax(-1)
 
   # retrieve the toxic character offsets of these predictions
-  toxic_char_preds = character_offsets(val_text_encodings, val_offset_mapping, predictions)
+  toxic_char_preds = character_offsets(val_text_encodings, val_offset_mapping, predictions, val_sentences_info)
 
   # compute the precision, recall and f1 score on the validation set
   precision, recall, f1 = system_precision_recall_f1(toxic_char_preds, gold_char_offsets)

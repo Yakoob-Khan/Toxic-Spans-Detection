@@ -2,6 +2,7 @@ import time
 import torch
 import numpy as np
 import json
+from collections import defaultdict
 
 from load_dataset import load_dataset, training_validation_split
 from tokenize_data import tokenize_data
@@ -10,7 +11,7 @@ from compute_metrics import compute_metrics
 from character_offsets import character_offsets
 from plot import plot
 from write_predictions import write_toxic_strings
-from collections import defaultdict
+from train_sentence_classification import sentence_classifier
 
 from transformers import BertForTokenClassification, Trainer, TrainingArguments, BertTokenizerFast 
 
@@ -27,7 +28,23 @@ texts, spans = load_dataset('../data/tsd_train.csv')
 # Split the dataset into training / validation sets
 training_texts, val_texts, training_spans, val_spans = training_validation_split(texts, spans, test_size=0.2)
 
-print('> Tokenizing text and generating word embeddings.. \n')
+# Train a toxic sentence classifier first
+val_sentence_pred, val_post_to_sentence_num, val_sentence_spans = sentence_classifier(training_texts, val_texts, training_spans, val_spans)
+
+val_sentences_info = {
+  'val_sentence_pred': val_sentence_pred,
+  'val_post_to_sentence_num': val_post_to_sentence_num,
+  'val_sentence_spans': val_sentence_spans
+}
+# print(val_texts[0])
+# print('\n-----\n')
+# print(val_post_to_sentence_num[0])
+# print('\n-----\n')
+# for num in val_post_to_sentence_num[0]:
+#   i, j = val_sentence_spans[num]
+#   print(val_texts[0][i:j])
+
+print('\n> Tokenizing text and generating word embeddings.. \n')
 train_text_encodings, train_labels_encodings = tokenize_data(tokenizer, training_texts, training_spans)
 val_text_encodings, val_labels_encodings = tokenize_data(tokenizer, val_texts, val_spans)
 
@@ -47,7 +64,7 @@ metrics = defaultdict(list)
 # custom metric wrapper function
 def custom_metrics(pred):
   # comute the precision, recall and f1 of the system at evaluation step
-  ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings)
+  ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings, val_sentences_info)
 
   # store the metrics for visualization later
   metrics['precision'].append(ret['precision'])
@@ -83,27 +100,27 @@ trainer = Trainer(
     compute_metrics=custom_metrics
 )
 
-print('> Started training..\n')
+print('> Started Toxic Spans Detection training! \n')
 trainer.train()
 
-print("\n> ---- Making Predictions ---- \n")
+print("\n> Making Predictions \n")
 # use trained model to make predictions
 pred = trainer.predict(val_dataset)
 
 # Print final metrics
-ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings)
+ret = compute_metrics(pred, val_spans, val_offset_mapping, val_text_encodings, val_sentences_info)
 
 print(f'System performance: {ret}')
 
 # retrieve the predictions
 predictions = pred.predictions.argmax(-1)
 # get the predicted character offsets
-toxic_char_preds = character_offsets(val_text_encodings, val_offset_mapping, predictions)
+toxic_char_preds = character_offsets(val_text_encodings, val_offset_mapping, predictions, val_sentences_info)
 # write the predicted and ground truth toxic strings to examine model outputs
 write_toxic_strings('predictions.txt', val_texts, val_spans, toxic_char_preds)
 
-print('\n> Plotting results.. \n')
-plot(metrics)
+print('\n> Plotting Toxic Spans Detection training metrics. \n')
+plot(metrics, 'toxic_spans_training.png')
 
 # Write the metric values to a text file
 with open('metrics.txt', 'w') as file:

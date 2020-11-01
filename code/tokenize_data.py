@@ -26,3 +26,5 @@ def tokenize_data(tokenizer, texts, spans):
 
 def tokenize_sentences(tokenizer, sentences):
   return tokenizer(sentences, return_offsets_mapping=True, padding=True, truncation=True)
+
+  

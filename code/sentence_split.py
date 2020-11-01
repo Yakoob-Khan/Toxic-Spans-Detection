@@ -1,7 +1,9 @@
+import nltk
 import nltk.data
 
-from load_dataset import load_dataset
+from collections import defaultdict
 
+nltk.download('punkt')
 tokenizer = nltk.data.load('tokenizers/punkt/PY3/english.pickle')
 
 def sentence_split_helper(paragraph, gold):
@@ -9,7 +11,7 @@ def sentence_split_helper(paragraph, gold):
   # split the paragraph into sentences
   sentence_spans = tokenizer.span_tokenize(paragraph)
   # slices the sentences and its respective label
-  sentences, labels = [], []
+  sentences, labels, spans = [], [], []
   for i, j in sentence_spans:
     # get the sentence
     sentences.append(paragraph[i:j])
@@ -22,18 +24,23 @@ def sentence_split_helper(paragraph, gold):
         break
     
     labels.append(label)
+    spans.append((i, j))
   
-  return sentences, labels
+  return sentences, labels, spans
 
 
-def create_sentence_classification_dataset(dataset_path):
-  texts, spans = load_dataset(dataset_path)
-  examples, gold = [], []
-  for text, span in zip(texts, spans):
-    sentences, labels = sentence_split_helper(text, span)
+def split_into_setences(texts, spans):
+  examples, gold, sentence_spans, post_to_sentence_num = [], [], [], defaultdict(list)
+  for i, (text, span) in enumerate(zip(texts, spans)):
+    sentences, labels, sentence_span = sentence_split_helper(text, span)
+    start = len(examples)
     examples.extend(sentences)
-    gold.extend(labels)
+    end = len(examples) - 1
+    post_to_sentence_num[i] = [k for k in range(start, end + 1)]
 
-  return examples, gold
+    gold.extend(labels)
+    sentence_spans.extend(sentence_span)
+
+  return examples, gold, sentence_spans, post_to_sentence_num
 
 

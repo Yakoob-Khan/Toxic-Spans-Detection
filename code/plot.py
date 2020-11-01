@@ -7,7 +7,7 @@ from collections import defaultdict
 
 plt.figure(dpi=600)
 
-def plot(metrics):
+def plot(metrics, filename):
     steps = [step for step in range(0, 10*len(metrics['f1']), 10)]
     metric_names = {'precision': 'Precision', 'recall': 'Recall', 'f1': 'F1'}
     plt.style.use('seaborn-darkgrid')
@@ -23,8 +23,8 @@ def plot(metrics):
     # Add titles
     plt.xlabel("Steps")
     plt.ylabel("Score")
-    print("> Saved figure as results.png")
-    plt.savefig('results.png')
+    print(f"> Saved figure as {filename}")
+    plt.savefig(filename)
 
 
 def plot_loss(filepath):
@@ -54,5 +54,6 @@ def plot_loss(filepath):
     # plt.show()
     print("> Saved figure as loss.png")
     plt.savefig('loss.png')
+    
 
 plot_loss('loss.txt')
