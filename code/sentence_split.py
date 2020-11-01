@@ -31,10 +31,9 @@ def create_sentence_classification_dataset(dataset_path):
   examples, gold = [], []
   for text, span in zip(texts, spans):
     sentences, labels = sentence_split_helper(text, span)
-    examples.append(sentences)
-    gold.append(labels)
+    examples.extend(sentences)
+    gold.extend(labels)
 
   return examples, gold
 
 
-create_sentence_classification_dataset('../data/tsd_train.csv')

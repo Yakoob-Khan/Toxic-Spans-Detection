@@ -22,4 +22,7 @@ def tokenize_data(tokenizer, texts, spans):
     text_encodings = tokenizer(texts, return_offsets_mapping=True, padding=True, truncation=True)
     labels = [preserve_labels(text_encodings[i], span) for i, span in enumerate(spans)]
     return text_encodings, labels
-    
+
+
+def tokenize_sentences(tokenizer, sentences):
+  return tokenizer(sentences, return_offsets_mapping=True, padding=True, truncation=True)

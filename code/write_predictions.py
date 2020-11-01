@@ -29,4 +29,3 @@ def write_toxic_strings(file_path, val_texts, gold_char_offsets, toxic_char_pred
     f.write(f"{[text]},{str(gold_toxic)},{str(pred_toxic)} \n")
 
   f.close()
-
