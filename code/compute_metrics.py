@@ -11,10 +11,12 @@ def system_precision_recall_f1(toxic_char_preds, gold_char_offsets):
     if len(predictions) == 0:
         return [0.0, 0.0, 0.0]
     
-    nom = len(set(predictions).intersection(set(gold)))
-    precision = nom / len(set(predictions))
-    recall = nom / len(set(gold))
-    f1_score = (2 * nom) / (len(set(predictions)) + len(set(gold)))
+    predictions_set = set(predictions)
+    gold_set = set(gold)
+    nom = len(predictions_set.intersection(gold_set))
+    precision = nom / len(predictions_set)
+    recall = nom / len(gold_set)
+    f1_score = (2 * nom) / (len(predictions_set) + len(gold_set))
 
     return [float(precision), float(recall), float(f1_score)]
   

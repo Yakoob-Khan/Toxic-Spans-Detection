@@ -1,7 +1,10 @@
 import pandas as pd
 from ast import literal_eval
-
 from sklearn.model_selection import train_test_split
+
+from utils import fix_spans
+
+
 
 def load_dataset(dataset_path):
     dataset = pd.read_csv(dataset_path)
@@ -18,8 +21,8 @@ def training_validation_split(texts, spans, test_size):
   training_texts, val_texts, training_spans, val_spans = train_test_split(texts, spans, test_size=test_size)
   # Create list of lists
   training_texts = [train_text for train_text in training_texts]
-  training_spans = [training_span for training_span in training_spans]
+  training_spans = [fix_spans(training_span, training_texts[i]) for i, training_span in enumerate(training_spans)]
   val_texts = [val_text for val_text in val_texts]
-  val_spans = [val_span for val_span in val_spans]
+  val_spans = [fix_spans(val_span, val_texts[i]) for i, val_span in enumerate(val_spans)]
 
   return training_texts, val_texts, training_spans, val_spans
