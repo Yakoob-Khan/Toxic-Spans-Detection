@@ -1,0 +1,30 @@
+ner:
+  data_format: Seqence
+  dropout_p: 0.3
+  enable_san: False
+  labels:
+  - non-toxic
+  - toxic
+  - CLS
+  - SEP
+  metric_meta:
+  - SeqEval
+  n_class: 4
+  loss: SeqCeCriterion
+  split_names:
+  - train
+  - dev
+  - test
+  task_type: SeqenceLabeling
+
+sentenceclassification:
+  data_format: PremiseOnly
+  enable_san: false
+  labels:
+  - non-toxic
+  - toxic
+  metric_meta:
+  - F1
+  loss: CeCriterion
+  n_class: 2
+  task_type: Classification
