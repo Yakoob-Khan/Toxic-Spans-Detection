@@ -62,5 +62,19 @@ def toxic_character_offsets(post_num, tokens, offset_mapping, prediction, val_se
   return sorted(list(toxic_offsets))
 
 
+def mt_dnn_post_character_offsets(offset, prediction):
+  toxic_offsets = set()
+  for i, label in enumerate(prediction):
+    if label == 1:
+      toxic_offsets = toxic_offsets.union({index for index in range(offset[i][0], offset[i][1])})
+  
+  return sorted(list(toxic_offsets))
+
+
+
+
 def character_offsets(val_text_encodings, val_offset_mapping, predictions, val_sentences_info):
   return [toxic_character_offsets(i, val_text_encodings[i].tokens, offset_mapping, prediction, val_sentences_info) for i, (offset_mapping, prediction) in enumerate(zip(val_offset_mapping, predictions))]
+
+def mt_dnn_character_offsets(predictions, offsets):
+  return [mt_dnn_post_character_offsets(offset, prediction) for offset, prediction in zip(offsets, predictions)]
