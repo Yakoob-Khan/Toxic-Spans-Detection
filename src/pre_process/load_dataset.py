@@ -9,10 +9,20 @@ def load_dataset(dataset_path):
     print(f"\n> Loading {dataset.shape[0]} examples located at '{dataset_path}'\n")
 
     dataset["spans"] = dataset.spans.apply(literal_eval)
-    text = dataset["text"]
-    spans = dataset["spans"]
+    texts, spans = dataset["text"], dataset["spans"]
+    texts = [text for text in texts]
+    spans = [fix_spans(span, texts[i]) for i, span in enumerate(spans)]
    
-    return text, spans
+    return texts, spans
+
+def load_testset(dataset_path):
+  dataset = pd.read_csv(dataset_path)
+  print(f"\n> Loading {dataset.shape[0]} test examples located at '{dataset_path}'\n")
+  texts = dataset["text"]
+  texts = [text for text in texts]
+  return texts
+
+
 
 def training_validation_split(texts, spans, test_size):
   # Use sklearn function to split the dataset

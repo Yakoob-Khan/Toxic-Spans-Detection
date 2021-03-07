@@ -23,5 +23,11 @@ def tokenize_data(tokenizer, texts, spans):
     return text_encodings, labels
 
 
+def tokenize_testset(tokenizer, texts):
+    text_encodings = tokenizer(texts, return_offsets_mapping=True, padding=True, truncation=True)
+    dummy_labels = [[0] * len(tokens) for i, tokens in enumerate(text_encodings.input_ids)]
+    return text_encodings, dummy_labels
+
+
 def tokenize_sentences(tokenizer, sentences):
-  return tokenizer(sentences, return_offsets_mapping=True, padding=True, truncation=True)
+    return tokenizer(sentences, return_offsets_mapping=True, padding=True, truncation=True)
