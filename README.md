@@ -42,6 +42,12 @@ python3 './train_bert.py'
 All experiments were ran on Google Colab Pro's High-RAM environment using a single P100 GPU. See [requirements](src/requirements.txt) for complete list of all dependencies used and their respective versions.
 
 
+## Attribution
+The [mt-dnn](./mt-dnn) code was obtained from [Liu et al.](https://github.com/namisan/mt-dnn) and the [task\_organizers\_code](./src/task_organizers_code) was obtained from [Pavlopoulos et al.](https://github.com/ipavlopoulos/toxic_spans/). 
+
+The remaining code in this repository was developed by Yakoob Khan.
+
+
 ## Citation
 
 If you find this code or our paper useful, please consider citing:
