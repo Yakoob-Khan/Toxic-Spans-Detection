@@ -20,6 +20,8 @@ This paper describes our approach to the Toxic Spans Detection problem (SemEval-
 </p>
 
 ## Usage
+Here's a link to a sample [Google Colab Jupyter Notebook](https://colab.research.google.com/drive/10l7F0D9vjrE8ASfH0qNPLPBTYGmkxw1Z?usp=sharing) that utilizes this code for toxic spans detection.
+
 To fine-tune the BERToxic system for the toxic spans detection, enter the following:
 
 ```
