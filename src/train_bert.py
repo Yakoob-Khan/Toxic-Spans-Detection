@@ -12,10 +12,11 @@ from collections import defaultdict
 from pre_process.load_dataset import load_dataset, training_validation_split, load_testset
 from pre_process.tokenize_data import tokenize_data, tokenize_testset
 from pre_process.create_tensor_dataset import ToxicSpansDataset
-from post_process.character_offsets import character_offsets, character_offsets_with_thresholding
+from post_process.character_offsets import character_offsets_with_thresholding
 from visualize.plot import plot
 from utils.compute_metrics import compute_metrics
 from utils.write_predictions import write_toxic_strings, create_submission_file, write_test_strings, write_toxic_strings_with_prob
+from utils.write_bert_confidence_scores import write_bert_confidence_scores
 from utils.helper import _contiguous_ranges
 from utils.helper import fix_spans
 from visualize.confusion_matrix import create_confusion_matrix
@@ -49,6 +50,9 @@ parser.add_argument("--plot_loss", type=str, default='False', help="plot trainin
 parser.add_argument("--plot_confusion_matrix", type=str, default='False', help="plot confusion matrix")
 parser.add_argument("--train_dev_split", type=str, default='False', help="split train set into train/dev")
 parser.add_argument("--dev_size", type=float, default=0.1, help="dev set size")
+parser.add_argument("--confidence_scores", type=str, default='False', help="write confidence scores of test set to text file for plotting precision-recall curve")
+parser.add_argument("--experiment_name", type=str, default='BERT', help="name to help identify among various experiments")
+
 
 args = parser.parse_args()
 
@@ -64,7 +68,6 @@ test_texts, test_spans = load_dataset(args.test_dir)
 # Split the dataset into training / validation sets
 if ast.literal_eval(args.train_dev_split):
   training_texts, val_texts, training_spans, val_spans = training_validation_split(texts, spans, test_size=args.dev_size)
-
 
 val_sentences_info = {}
 
@@ -161,15 +164,19 @@ create_submission_file("./output/spans-pred.txt", toxic_char_offsets)
 
 if ast.literal_eval(args.plot_loss):
   print('\n> Plotting Toxic Spans Detection training metrics. \n')
-  plot(metrics, 'toxic_spans_training.png')
+  plot(metrics, f'output/toxic_spans_training.pdf')
 
 if ast.literal_eval(args.plot_confusion_matrix):
   print('\n> Plotting Confusion Matrix. \n')
   create_confusion_matrix(test_text_encodings, test_predictions, test_labels_encodings)
 
-# # Write the metric values to a text file
-# with open('metrics.txt', 'w') as file:
-#   file.write(json.dumps(metrics))
+if ast.literal_eval(args.confidence_scores):
+  print('\n> Writing Confidence Scores for test set \n')
+  write_bert_confidence_scores(test_labels_encodings, test_prediction_scores, f"output/scores_{args.experiment_name}.txt")
+  
+# Write the metric values to a text file
+with open('metrics.txt', 'w') as file:
+  file.write(json.dumps(metrics))
 
 end = time.time()
 print(f"Time: {(end-start)/60} mins")
